@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Elden Ring — As Terras Intermédias</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c87a;
+      --gold-dark: #8a6820;
+      --ash: #1a1a1a;
+      --dark: #0a0a0a;
+      --parchment: #c4a96e;
+      --fog: rgba(201,168,76,0.06);
+      --rune: #d4af5a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--dark);
+      color: var(--parchment);
+      font-family: 'EB Garamond', serif;
+      font-size: 18px;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.5;
+    }
+
+    /* ── CURSOR ── */
+    .cursor {
+      width: 14px; height: 14px;
+      border: 1.5px solid var(--gold);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, border-color 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    .cursor.hover { transform: translate(-50%, -50%) scale(2.5); border-color: var(--gold-light); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 4rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
+    }
+
+    .nav-logo {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      color: var(--parchment);
+      text-decoration: none;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      transition: opacity 0.3s, color 0.3s;
+    }
+    .nav-links a:hover { opacity: 1; color: var(--gold-light); }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 60%, rgba(201,168,76,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 100% 80% at 50% 100%, rgba(0,0,0,0.9) 0%, transparent 60%),
+        linear-gradient(180deg, #0a0a0a 0%, #111008 40%, #0a0a0a 100%);
+    }
+
+    /* Rune circle SVG background */
+    .rune-circle {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 700px;
+      opacity: 0.06;
+      animation: rotate 120s linear infinite;
+    }
+
+    @keyframes rotate { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    @keyframes rotateRev { to { transform: translate(-50%, -50%) rotate(-360deg); } }
+
+    .rune-circle-2 {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px; height: 500px;
+      opacity: 0.04;
+      animation: rotateRev 80s linear infinite;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0;
+      animation: fadeUp 1s 0.3s forwards;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(3.5rem, 9vw, 8rem);
+      font-weight: 900;
+      color: var(--gold-light);
+      text-align: center;
+      line-height: 0.9;
+      letter-spacing: 0.05em;
+      text-shadow:
+        0 0 80px rgba(201,168,76,0.3),
+        0 0 160px rgba(201,168,76,0.1);
+      opacity: 0;
+      animation: fadeUp 1.2s 0.6s forwards;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(0.8rem, 2vw, 1.1rem);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 1.2s 0.9s forwards;
+    }
+
+    .hero-divider {
+      width: 180px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+      margin: 2.5rem auto;
+      opacity: 0;
+      animation: fadeUp 1s 1.1s forwards;
+    }
+
+    .hero-desc {
+      max-width: 520px;
+      text-align: center;
+      color: rgba(196,169,110,0.75);
+      font-style: italic;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeUp 1s 1.3s forwards;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1.2rem;
+      margin-top: 2.8rem;
+      opacity: 0;
+      animation: fadeUp 1s 1.5s forwards;
+    }
+
+    .btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 0.9rem 2.2rem;
+      text-decoration: none;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold);
+      transform: translateX(-101%);
+      transition: transform 0.35s ease;
+    }
+    .btn span { position: relative; z-index: 1; }
+    .btn:hover::before { transform: translateX(0); }
+    .btn:hover { color: var(--dark); }
+    .btn-outline { background: transparent; }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 1s 2s forwards;
+    }
+    .scroll-indicator span {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.5);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: pulse-line 2s ease-in-out infinite;
+    }
+    @keyframes pulse-line {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SECTION BASE ── */
+    section {
+      padding: 8rem 4rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      color: var(--gold-light);
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .gold-rule {
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      margin: 1.5rem 0 2.5rem;
+    }
+
+    /* ── LORE SECTION ── */
+    #lore {
+      border-top: 1px solid rgba(201,168,76,0.12);
+    }
+
+    .lore-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      margin-top: 4rem;
+    }
+
+    .lore-text p {
+      color: rgba(196,169,110,0.82);
+      line-height: 2;
+      margin-bottom: 1.5rem;
+      font-size: 1.05rem;
+    }
+
+    .lore-text p em { color: var(--gold-light); font-style: italic; }
+
+    .lore-visual {
+      position: relative;
+      height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lore-rune-container {
+      position: relative;
+      width: 320px; height: 320px;
+    }
+
+    .lore-rune-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lore-rune-ring:nth-child(2) {
+      inset: 30px;
+      border-color: rgba(201,168,76,0.35);
+      animation: rotate 30s linear infinite;
+    }
+    .lore-rune-ring:nth-child(3) {
+      inset: 60px;
+      border-color: rgba(201,168,76,0.5);
+      animation: rotateRev 20s linear infinite;
+    }
+
+    .lore-center-symbol {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 3rem;
+      color: var(--gold);
+      text-shadow: 0 0 40px rgba(201,168,76,0.6);
+      animation: glow-pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { text-shadow: 0 0 30px rgba(201,168,76,0.4); }
+      50% { text-shadow: 0 0 60px rgba(201,168,76,0.9), 0 0 120px rgba(201,168,76,0.3); }
+    }
+
+    /* ── CLASSES SECTION ── */
+    #classes {
+      border-top: 1px solid rgba(201,168,76,0.12);
+    }
+
+    .classes-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .classes-header .gold-rule { margin: 1.5rem auto 0; }
+
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.1);
+    }
+
+    .class-card {
+      background: var(--ash);
+      padding: 2.5rem 1.8rem;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+      overflow: hidden;
+    }
+    .class-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width 0.4s ease;
+    }
+    .class-card:hover { background: #1e1c15; }
+    .class-card:hover::after { width: 100%; }
+
+    .class-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: block;
+      filter: sepia(1) saturate(0.5) brightness(0.8);
+    }
+
+    .class-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .class-desc {
+      font-size: 0.85rem;
+      color: rgba(196,169,110,0.65);
+      line-height: 1.7;
+    }
+
+    .class-stats {
+      margin-top: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .stat-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .stat-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      color: rgba(201,168,76,0.5);
+      text-transform: uppercase;
+      width: 24px;
+    }
+    .stat-track {
+      flex: 1;
+      height: 2px;
+      background: rgba(201,168,76,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--gold-dark), var(--gold));
+      transition: width 1s ease;
+    }
+
+    /* ── AREAS SECTION ── */
+    #areas {
+      border-top: 1px solid rgba(201,168,76,0.12);
+      padding-bottom: 4rem;
+    }
+
+    .areas-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 4rem;
+      background: rgba(201,168,76,0.08);
+    }
+
+    .area-card {
+      background: var(--ash);
+      padding: 3rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      group: area;
+      transition: background 0.3s;
+    }
+    .area-card:hover { background: #1a1712; }
+
+    .area-number {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 5rem;
+      color: rgba(201,168,76,0.05);
+      position: absolute;
+      top: 1rem; right: 1.5rem;
+      line-height: 1;
+      transition: color 0.4s;
+    }
+    .area-card:hover .area-number { color: rgba(201,168,76,0.12); }
+
+    .area-tag {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.6;
+      margin-bottom: 0.8rem;
+    }
+
+    .area-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      color: var(--gold-light);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .area-desc {
+      color: rgba(196,169,110,0.65);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      font-style: italic;
+    }
+
+    .area-danger {
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .danger-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.4);
+    }
+    .danger-dots {
+      display: flex;
+      gap: 3px;
+    }
+    .danger-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(201,168,76,0.15);
+    }
+    .danger-dot.active { background: var(--gold); }
+
+    /* ── QUOTE ── */
+    #quote {
+      border-top: 1px solid rgba(201,168,76,0.12);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quote-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(201,168,76,0.04) 0%, transparent 70%);
+    }
+
+    .quote-marks {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 8rem;
+      color: rgba(201,168,76,0.07);
+      line-height: 0.5;
+      margin-bottom: 2rem;
+    }
+
+    blockquote {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 1.35rem;
+      font-style: italic;
+      line-height: 1.9;
+      color: rgba(196,169,110,0.9);
+      position: relative;
+      z-index: 1;
+    }
+
+    blockquote cite {
+      display: block;
+      margin-top: 2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-style: normal;
+      opacity: 0.7;
+    }
+
+    /* ── STATS COUNTER ── */
+    #stats {
+      border-top: 1px solid rgba(201,168,76,0.12);
+      padding: 6rem 4rem;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 6rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 3.5rem;
+      color: var(--gold);
+      display: block;
+      text-shadow: 0 0 40px rgba(201,168,76,0.3);
+    }
+
+    .stat-desc {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(196,169,110,0.55);
+      margin-top: 0.5rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(201,168,76,0.12);
+      padding: 3rem 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+    }
+
+    .footer-text {
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      color: rgba(201,168,76,0.3);
+      text-transform: uppercase;
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 5rem 1.5rem; }
+      .lore-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .classes-grid { grid-template-columns: repeat(2, 1fr); }
+      .areas-list { grid-template-columns: 1fr; }
+      .stats-row { gap: 3rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+      #stats { padding: 4rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor" id="cursor"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#hero" class="nav-logo">Elden Ring</a>
+    <ul class="nav-links">
+      <li><a href="#lore">Lore</a></li>
+      <li><a href="#classes">Classes</a></li>
+      <li><a href="#areas">As Terras</a></li>
+      <li><a href="#quote">Sabedoria</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+
+    <!-- Decorative rune circles -->
+    <svg class="rune-circle" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="200" r="190" stroke="#c9a84c" stroke-width="0.5"/>
+      <circle cx="200" cy="200" r="160" stroke="#c9a84c" stroke-width="0.3" stroke-dasharray="8 12"/>
+      <circle cx="200" cy="200" r="130" stroke="#c9a84c" stroke-width="0.5"/>
+      <path d="M200 10 L210 50 L200 45 L190 50 Z" fill="#c9a84c" opacity="0.6"/>
+      <path d="M200 390 L210 350 L200 355 L190 350 Z" fill="#c9a84c" opacity="0.6"/>
+      <path d="M10 200 L50 210 L45 200 L50 190 Z" fill="#c9a84c" opacity="0.6"/>
+      <path d="M390 200 L350 210 L355 200 L350 190 Z" fill="#c9a84c" opacity="0.6"/>
+      <text x="200" y="30" text-anchor="middle" font-family="serif" font-size="10" fill="#c9a84c" opacity="0.8">⟡</text>
+      <text x="200" y="378" text-anchor="middle" font-family="serif" font-size="10" fill="#c9a84c" opacity="0.8">⟡</text>
+      <text x="22" y="204" text-anchor="middle" font-family="serif" font-size="10" fill="#c9a84c" opacity="0.8">⟡</text>
+      <text x="378" y="204" text-anchor="middle" font-family="serif" font-size="10" fill="#c9a84c" opacity="0.8">⟡</text>
+    </svg>
+
+    <svg class="rune-circle-2" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="200,20 380,310 20,310" stroke="#c9a84c" stroke-width="0.4" fill="none" opacity="0.5"/>
+      <polygon points="200,380 20,90 380,90" stroke="#c9a84c" stroke-width="0.4" fill="none" opacity="0.5"/>
+      <circle cx="200" cy="200" r="110" stroke="#c9a84c" stroke-width="0.3" stroke-dasharray="4 8"/>
+    </svg>
+
+    <p class="hero-eyebrow">FromSoftware · Bandai Namco · 2022</p>
+    <h1 class="hero-title">ELDEN<br>RING</h1>
+    <p class="hero-subtitle">As Terras Intermédias Aguardam</p>
+    <div class="hero-divider"></div>
+    <p class="hero-desc">
+      O Anel Prístino foi destruído. Destruído em uma era de estrelas.
+      Levante-se, Maculado, e deixe a graça guiá-lo em sua jornada para se tornar o Lorde Prístino.
+    </p>
+    <div class="hero-cta">
+      <a href="#lore" class="btn btn-solid"><span>Descubra a Lore</span></a>
+      <a href="#classes" class="btn btn-outline"><span>Escolha Sua Classe</span></a>
+    </div>
+
+    <div class="scroll-indicator">
+      <span>Desça</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- LORE -->
+  <section id="lore">
+    <div class="section-label">Capítulo I</div>
+    <h2 class="section-title">A Ruptura</h2>
+    <div class="gold-rule"></div>
+
+    <div class="lore-grid reveal">
+      <div class="lore-text">
+        <p>
+          Long ago, the <em>Elden Ring</em> — source of the Erdtree's power — was shattered
+          by the demigod children of Queen Marika, each seizing a Great Rune for themselves.
+          This catastrophe became known as <em>A Ruptura</em>.
+        </p>
+        <p>
+          Você é um Maculado: alguém que perdeu a graça da Térvore e foi exilado das
+          Terras Intermédias. Chamado de volta da névoa da morte, você é guiado por uma luz dourada
+          em direção a um único propósito — restaurar o Anel Prístino e ascender como <em>Lorde Prístino</em>.
+        </p>
+        <p>
+          Mas o caminho não é único. As Terras Intermédias guardam segredos, traições e poderes
+          mais antigos até mesmo que a própria Térvore. Que tipo de lorde você se tornará?
+        </p>
+      </div>
+      <div class="lore-visual">
+        <div class="lore-rune-container">
+          <div class="lore-rune-ring"></div>
+          <div class="lore-rune-ring"></div>
+          <div class="lore-rune-ring"></div>
+          <div class="lore-center-symbol">⊕</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLASSES -->
+  <section id="classes">
+    <div class="classes-header reveal">
+      <div class="section-label">Capítulo II</div>
+      <h2 class="section-title">Escolha Sua Origem</h2>
+      <div class="gold-rule"></div>
+    </div>
+
+    <div class="classes-grid reveal">
+      <!-- Vagabundo -->
+      <div class="class-card" data-class="vagabond">
+        <span class="class-icon">⚔️</span>
+        <div class="class-name">Vagabundo</div>
+        <div class="class-desc">Um cavaleiro exilado de sua terra natal. Alta resistência e força fazem dele uma fortaleza em batalha.</div>
+        <div class="class-stats">
+          <div class="stat-bar">
+            <span class="stat-label">STR</span>
+            <div class="stat-track"><div class="stat-fill" style="width:78%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">DEX</span>
+            <div class="stat-track"><div class="stat-fill" style="width:52%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">INT</span>
+            <div class="stat-track"><div class="stat-fill" style="width:20%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Astrólogo -->
+      <div class="class-card">
+        <span class="class-icon">🌙</span>
+        <div class="class-name">Astrólogo</div>
+        <div class="class-desc">Um estudioso que lê o destino nas estrelas. Empunha poderosas feitiçarias desde o início da jornada.</div>
+        <div class="class-stats">
+          <div class="stat-bar">
+            <span class="stat-label">STR</span>
+            <div class="stat-track"><div class="stat-fill" style="width:22%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">DEX</span>
+            <div class="stat-track"><div class="stat-fill" style="width:35%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">INT</span>
+            <div class="stat-track"><div class="stat-fill" style="width:90%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profeta -->
+      <div class="class-card">
+        <span class="class-icon">🔥</span>
+        <div class="class-name">Profeta</div>
+        <div class="class-desc">Um vidente rejeitado por realizar adivinhações proibidas. Usa encantamentos de fogo e luz curativa.</div>
+        <div class="class-stats">
+          <div class="stat-bar">
+            <span class="stat-label">STR</span>
+            <div class="stat-track"><div class="stat-fill" style="width:40%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">FAI</span>
+            <div class="stat-track"><div class="stat-fill" style="width:88%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">INT</span>
+            <div class="stat-track"><div class="stat-fill" style="width:25%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Samurai -->
+      <div class="class-card">
+        <span class="class-icon">🗡️</span>
+        <div class="class-name">Samurai</div>
+        <div class="class-desc">Um guerreiro habilidoso vindo da distante terra dos juncos. Especialista em katanas e no caminho do bushido.</div>
+        <div class="class-stats">
+          <div class="stat-bar">
+            <span class="stat-label">STR</span>
+            <div class="stat-track"><div class="stat-fill" style="width:55%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">DEX</span>
+            <div class="stat-track"><div class="stat-fill" style="width:82%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">INT</span>
+            <div class="stat-track"><div class="stat-fill" style="width:18%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Miserável -->
+      <div class="class-card">
+        <span class="class-icon">💀</span>
+        <div class="class-name">Miserável</div>
+        <div class="class-desc">Uma figura nua sem nada além do próprio corpo. Todos os atributos equilibrados — uma tela em branco para a maestria.</div>
+        <div class="class-stats">
+          <div class="stat-bar">
+            <span class="stat-label">ALL</span>
+            <div class="stat-track"><div class="stat-fill" style="width:40%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">DEX</span>
+            <div class="stat-track"><div class="stat-fill" style="width:40%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">INT</span>
+            <div class="stat-track"><div class="stat-fill" style="width:40%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bandido -->
+      <div class="class-card">
+        <span class="class-icon">🏹</span>
+        <div class="class-name">Bandido</div>
+        <div class="class-desc">Um perigoso saqueador que pilha os mortos. Especialista em sangramento e emboscadas.</div>
+        <div class="class-stats">
+          <div class="stat-bar">
+            <span class="stat-label">STR</span>
+            <div class="stat-track"><div class="stat-fill" style="width:33%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">DEX</span>
+            <div class="stat-track"><div class="stat-fill" style="width:65%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">ARC</span>
+            <div class="stat-track"><div class="stat-fill" style="width:72%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confessor -->
+      <div class="class-card">
+        <span class="class-icon">🕯️</span>
+        <div class="class-name">Confessor</div>
+        <div class="class-desc">Um assassino da igreja envolto em fé. Mistura encantamentos e furtividade.</div>
+        <div class="class-stats">
+          <div class="stat-bar">
+            <span class="stat-label">STR</span>
+            <div class="stat-track"><div class="stat-fill" style="width:50%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">FAI</span>
+            <div class="stat-track"><div class="stat-fill" style="width:76%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">DEX</span>
+            <div class="stat-track"><div class="stat-fill" style="width:48%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Herói -->
+      <div class="class-card">
+        <span class="class-icon">🛡️</span>
+        <div class="class-name">Herói</div>
+        <div class="class-desc">Um campeão criado para a grandeza. Força bruta e espírito de batalha.</div>
+        <div class="class-stats">
+          <div class="stat-bar">
+            <span class="stat-label">STR</span>
+            <div class="stat-track"><div class="stat-fill" style="width:95%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">DEX</span>
+            <div class="stat-track"><div class="stat-fill" style="width:30%"></div></div>
+          </div>
+          <div class="stat-bar">
+            <span class="stat-label">FAI</span>
+            <div class="stat-track"><div class="stat-fill" style="width:20%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AREAS -->
+  <section id="areas">
+    <div class="reveal">
+      <div class="section-label">Capítulo III</div>
+      <h2 class="section-title">As Terras Intermédias</h2>
+      <div class="gold-rule"></div>
+    </div>
+
+    <div class="areas-list reveal">
+      <div class="area-card">
+        <div class="area-number">I</div>
+        <div class="area-tag">Região Inicial</div>
+        <div class="area-name">Limgrave</div>
+        <div class="area-desc">Campos dourados iluminados pela Térvore. O primeiro suspiro do retorno de um Maculado — vasto, aberto e perigosamente enganoso.</div>
+        <div class="area-danger">
+          <span class="danger-label">Perigo</span>
+          <div class="danger-dots">
+            <div class="danger-dot active"></div>
+            <div class="danger-dot"></div>
+            <div class="danger-dot"></div>
+            <div class="danger-dot"></div>
+            <div class="danger-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-number">II</div>
+        <div class="area-tag">Cidade Eterna</div>
+        <div class="area-name">Nokron</div>
+        <div class="area-desc">Uma cidade de estrelas congelada em noite eterna, caída dos céus para a terra. A Lâmina Mata-Dedos repousa aqui.</div>
+        <div class="area-danger">
+          <span class="danger-label">Perigo</span>
+          <div class="danger-dots">
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot"></div>
+            <div class="danger-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-number">III</div>
+        <div class="area-tag">Reino em Ruínas</div>
+        <div class="area-name">Farum Azula</div>
+        <div class="area-desc">Ruínas flutuantes antigas vagando por uma tempestade sem fim. Homens-fera percorrem seus corredores.</div>
+        <div class="area-danger">
+          <span class="danger-label">Perigo</span>
+          <div class="danger-dots">
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-number">IV</div>
+        <div class="area-tag">Podridão Amaldiçoada</div>
+        <div class="area-name">Caelid</div>
+        <div class="area-desc">Um deserto escarlate consumido pela Podridão Escarlate de Malenia. Até o céu sangra aqui.</div>
+        <div class="area-danger">
+          <span class="danger-label">Perigo</span>
+          <div class="danger-dots">
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-number">V</div>
+        <div class="area-tag">Consagrado</div>
+        <div class="area-name">Mountaintops</div>
+        <div class="area-desc">Picos congelados onde a Forja dos Gigantes queimava antigamente. O frio aqui é memória.</div>
+        <div class="area-danger">
+          <span class="danger-label">Perigo</span>
+          <div class="danger-dots">
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-number">VI</div>
+        <div class="area-tag">A Capital</div>
+        <div class="area-name">Leyndell</div>
+        <div class="area-desc">A Capital Real da Térvore, envolta em luz dourada. Onde os deuses caminharam.</div>
+        <div class="area-danger">
+          <span class="danger-label">Perigo</span>
+          <div class="danger-dots">
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot active"></div>
+            <div class="danger-dot"></div>
+            <div class="danger-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats" style="max-width:1300px; margin: 0 auto;">
+    <div class="stats-row reveal">
+      <div class="stat-item">
+        <span class="stat-number" data-target="79">0</span>
+        <span class="stat-desc">Prêmios de Jogo do Ano</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="25">0</span>
+        <span class="stat-desc">Milhões de Cópias Vendidas</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="280">0</span>
+        <span class="stat-desc">Chefes Únicos</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="10">0</span>
+        <span class="stat-desc">Classes Iniciais</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section id="quote">
+    <div class="quote-bg"></div>
+    <div class="reveal" style="position:relative; z-index:1;">
+      <div class="quote-marks">"</div>
+      <blockquote>
+        Libertado dos deuses exteriores, tu tomarás o trono além da névoa.
+        Teu dever é tornar-te um lorde. Um Lorde Prístino. Erga-se, Maculado.
+        <cite>— Melina, Donzela dos Dedos</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Elden Ring</div>
+    <div class="footer-text">© 2022 Bandai Namco · FromSoftware</div>
+    <div class="footer-text">Tributo de fã — Sem afiliação oficial</div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, .class-card, .area-card, .btn').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 100);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Counter animation
+    function animateCounter(el) {
+      const target = parseInt(el.dataset.target);
+      const duration = 2000;
+      const start = performance.now();
+      const tick = (now) => {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(ease * target);
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target;
+      };
+      requestAnimationFrame(tick);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('[data-target]').forEach(animateCounter);
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('.stats-row').forEach(el => statsObserver.observe(el));
+  </script>
+</body>
+</html>
